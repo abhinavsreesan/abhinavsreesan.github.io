@@ -295,7 +295,11 @@
 					$('<div class="close">Close</div>')
 						.appendTo($this)
 						.on('click', function() {
-							location.hash = '';
+							var id = $this.attr('id') || '';
+										if (id.indexOf('project-') === 0)
+											location.hash = '#work';
+										else
+											location.hash = '';
 						});
 
 				// Prevent clicks from inside article from bubbling.
