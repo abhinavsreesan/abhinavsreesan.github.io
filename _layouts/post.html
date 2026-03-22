@@ -1,0 +1,41 @@
+---
+---
+<!DOCTYPE HTML>
+<html lang="en">
+	<head>
+		<title>{{ page.title }} | {{ site.title }}</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<meta name="description" content="{{ page.excerpt | strip_html | truncate: 155 }}" />
+		<link rel="stylesheet" href="/assets/css/main.css" />
+		<link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+		<link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+		<link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+		<link rel="manifest" href="/images/site.webmanifest">
+	</head>
+	<body class="blog-page">
+		<div class="blog-shell">
+			<header class="blog-header">
+				<p class="hero-kicker">Data Engineering Notes</p>
+				<h1>{{ page.title }}</h1>
+				<p class="blog-meta">{{ page.date | date: "%b %d, %Y" }}</p>
+				<ul class="actions fixed">
+					<li><a href="/blog/" class="button">Back to Blog</a></li>
+					<li><a href="/" class="button">Portfolio Home</a></li>
+				</ul>
+			</header>
+			<main class="blog-main">
+				<article class="box blog-card blog-post">
+					{{ content }}
+					{% if page.tags and page.tags.size > 0 %}
+					<div class="skill-badges">
+						{% for tag in page.tags %}
+						<span class="skill-badge">{{ tag }}</span>
+						{% endfor %}
+					</div>
+					{% endif %}
+				</article>
+			</main>
+		</div>
+	</body>
+</html>

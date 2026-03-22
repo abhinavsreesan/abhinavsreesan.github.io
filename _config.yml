@@ -1,0 +1,7 @@
+title: Abhinav Sreesan
+description: Senior Data Engineer portfolio and learning notes
+url: "https://abhinavsreesan.github.io"
+baseurl: ""
+markdown: kramdown
+permalink: /blog/:year/:month/:day/:title/
+timezone: Asia/Kolkata
