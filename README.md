@@ -102,6 +102,7 @@ Push to the default branch and enable GitHub Pages in the repository settings. T
 ## Changelog
 
 <!-- changelog:start -->
+- PR #5: Add a Copilot-powered workflow and script to automatically update the README changelog for PRs targeting the master branch. ([link](https://github.com/abhinavsreesan/abhinavsreesan.github.io/pull/5))
 - PR #0: Changelog automation initialized. New PR entries will appear here once the workflow runs.
 <!-- changelog:end -->
 
