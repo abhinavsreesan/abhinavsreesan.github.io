@@ -57,6 +57,21 @@ http://localhost:4000
 
 ## Updating Content
 
+### Blog posts (GitHub Issues CMS)
+Create or edit posts directly in GitHub Issues without pushing repo changes:
+
+1. Open a new issue in this repository.
+2. Set the issue title to your post title.
+3. Write the post in markdown in the issue body.
+4. Add the label `blog` (required).
+5. Add any additional labels as tags (for example: `azure`, `databricks`, `pyspark`).
+
+Notes:
+- All issues with the `blog` label are rendered as posts, including open and closed issues.
+- Update the issue body any time to update the post on the website.
+- Open a post directly at `https://abhinavsreesan.github.io/blog/?post=<issue_number>`.
+- RSS for issue-based posts: `https://github.com/abhinavsreesan/abhinavsreesan.github.io/labels/blog.atom`
+
 ### Resume
 Replace the PDF at:
 
