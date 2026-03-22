@@ -99,6 +99,20 @@ Write your markdown content here.
 
 Push to the default branch and enable GitHub Pages in the repository settings. The `CNAME` file supports a custom domain if configured.
 
+## Changelog
+
+<!-- changelog:start -->
+- PR #0: Changelog automation initialized. New PR entries will appear here once the workflow runs.
+<!-- changelog:end -->
+
+## Automated PR Changelog
+
+- Workflow: `.github/workflows/pr-readme-changelog.yml`
+- Script: `scripts/update_readme_changelog.py`
+- Trigger: pull request events targeting `master`
+- Required secret: `COPILOT_TOKEN` (GitHub token with `models:read` and repository write access)
+- Optional variable: `COPILOT_MODEL` (default: `openai/gpt-4.1`)
+
 ## Credits
 
 Base template adapted from HTML5 UP (Dimension). See `LICENSE.txt` for details.
