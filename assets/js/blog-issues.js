@@ -203,6 +203,26 @@
       return;
     }
 
+    var githubBlocks = container.querySelectorAll(".highlight pre");
+    githubBlocks.forEach(function (pre) {
+      if (pre.querySelector("code")) {
+        return;
+      }
+
+      var language = "";
+      var wrapper = pre.parentElement;
+      if (wrapper) {
+        var match = (wrapper.className || "").match(/highlight-source-([a-z0-9_+-]+)/i);
+        if (match && match[1]) {
+          language = match[1].toLowerCase();
+        }
+      }
+
+      var raw = pre.textContent || "";
+      pre.innerHTML =
+        '<code' + (language ? ' class="language-' + language + '"' : "") + ">" + escapeHtml(raw) + "</code>";
+    });
+
     var blocks = container.querySelectorAll("pre code");
     blocks.forEach(function (block) {
       var pre = block.parentElement;
