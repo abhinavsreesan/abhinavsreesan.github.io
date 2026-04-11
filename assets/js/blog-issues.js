@@ -198,6 +198,21 @@
     });
   }
 
+  function enhanceCodeBlocks(container) {
+    if (!container || typeof window.hljs === "undefined") {
+      return;
+    }
+
+    var blocks = container.querySelectorAll("pre code");
+    blocks.forEach(function (block) {
+      var pre = block.parentElement;
+      if (pre && pre.getAttribute("lang") && !block.className.match(/language-/)) {
+        block.classList.add("language-" + pre.getAttribute("lang"));
+      }
+      window.hljs.highlightElement(block);
+    });
+  }
+
   function renderPost(issue) {
     var tags = getTags(issue.labels || []);
     var headerHtml =
@@ -223,6 +238,7 @@
           contentHtml +
           "</div>" +
           footerHtml;
+        enhanceCodeBlocks(postContainer);
       })
       .catch(function () {
         postContainer.innerHTML =
@@ -233,6 +249,7 @@
             .replace(/\n/g, "<br />") +
           "</p></div>" +
           footerHtml;
+        enhanceCodeBlocks(postContainer);
       });
 
     setVisibility(listContainer, false);
