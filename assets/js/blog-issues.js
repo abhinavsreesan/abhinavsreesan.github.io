@@ -217,16 +217,21 @@
 
     renderMarkdown(issue.body || "")
       .then(function (contentHtml) {
-        postContainer.innerHTML = headerHtml + contentHtml + footerHtml;
+        postContainer.innerHTML =
+          headerHtml +
+          '<div class="issue-markdown">' +
+          contentHtml +
+          "</div>" +
+          footerHtml;
       })
       .catch(function () {
         postContainer.innerHTML =
           headerHtml +
-          "<p>" +
+          '<div class="issue-markdown"><p>' +
           escapeHtml(issue.body || "")
             .replace(/\n\n/g, "</p><p>")
             .replace(/\n/g, "<br />") +
-          "</p>" +
+          "</p></div>" +
           footerHtml;
       });
 

@@ -2123,6 +2123,11 @@ body.blog-page {
 	margin-bottom: 0.75rem;
 }
 
+.blog-header .actions.fixed {
+	flex-wrap: wrap;
+	row-gap: 0.75rem;
+}
+
 .blog-main {
 	display: block;
 }
@@ -2137,6 +2142,7 @@ body.blog-page {
 	background: rgba(255, 255, 255, 0.04);
 	border: solid 1px rgba(255, 255, 255, 0.28);
 	margin-bottom: 0;
+	overflow-wrap: anywhere;
 }
 
 .blog-card h2 {
@@ -2159,7 +2165,8 @@ body.blog-page {
 }
 
 .blog-post {
-	max-width: 72ch;
+	max-width: 100%;
+	width: 100%;
 }
 
 .blog-post h2,
@@ -2170,6 +2177,43 @@ body.blog-page {
 
 .blog-post ul {
 	margin-bottom: 1.5rem;
+}
+
+.blog-post .issue-markdown {
+	max-width: 100%;
+}
+
+.blog-post .issue-markdown pre {
+	max-width: 100%;
+	overflow-x: auto;
+	padding: 1rem 1.25rem;
+	border: solid 1px rgba(255, 255, 255, 0.2);
+	border-radius: 0.5rem;
+	background: rgba(7, 11, 18, 0.92);
+}
+
+.blog-post .issue-markdown pre code {
+	margin: 0;
+	padding: 0;
+	background: transparent;
+	white-space: pre;
+	overflow-wrap: normal;
+	word-break: normal;
+}
+
+.blog-post .issue-markdown code {
+	text-transform: none;
+	letter-spacing: 0;
+}
+
+.blog-post .issue-markdown img,
+.blog-post .issue-markdown table {
+	max-width: 100%;
+}
+
+.blog-post .issue-markdown table {
+	display: block;
+	overflow-x: auto;
 }
 
 @media screen and (max-width: 736px) {
