@@ -1,9 +1,9 @@
 (function () {
   var owner = "abhinavsreesan";
   var repo = "abhinavsreesan.github.io";
-  var label = "blog";
+  var label = "books";
   var perPage = 100;
-  var cacheKey = "blog_issues_cache_v1";
+  var cacheKey = "books_issues_cache_v1";
   var cacheTtlMs = 10 * 60 * 1000;
   var markdownApi = "https://api.github.com/markdown";
   var issuesApi =
@@ -108,6 +108,96 @@
     });
   }
 
+  function isAmazonUrl(url) {
+    return /https?:\/\/(?:www\.)?(?:amazon\.|amzn\.to\/)/i.test(url || "");
+  }
+
+  function normalizeUrl(url) {
+    if (!url) {
+      return null;
+    }
+    var cleaned = url.replace(/[\],.;!?]+$/, "");
+    try {
+      return new URL(cleaned).href;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  function normalizeBookTitle(title) {
+    if (!title) {
+      return "View on Amazon";
+    }
+    var cleaned = title.replace(/^[\-*\d\.\)\s]+/, "").trim();
+    return cleaned || "View on Amazon";
+  }
+
+  function extractBooksFromMarkdown(markdown) {
+    if (!markdown) {
+      return [];
+    }
+
+    var books = [];
+    var seen = {};
+    var lines = markdown.split(/\r?\n/);
+
+    var markdownLinkPattern = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g;
+    lines.forEach(function (line) {
+      var match;
+      while ((match = markdownLinkPattern.exec(line)) !== null) {
+        var linkedUrl = normalizeUrl(match[2]);
+        if (!linkedUrl || !isAmazonUrl(linkedUrl) || seen[linkedUrl]) {
+          continue;
+        }
+        seen[linkedUrl] = true;
+        books.push({
+          title: normalizeBookTitle(match[1]),
+          url: linkedUrl
+        });
+      }
+      markdownLinkPattern.lastIndex = 0;
+    });
+
+    var rawUrlPattern = /https?:\/\/(?:www\.)?(?:amazon\.[^\s)\]]+|amzn\.to\/[^\s)\]]+)/gi;
+    lines.forEach(function (line) {
+      var match;
+      while ((match = rawUrlPattern.exec(line)) !== null) {
+        var rawUrl = normalizeUrl(match[0]);
+        if (!rawUrl || seen[rawUrl]) {
+          continue;
+        }
+        seen[rawUrl] = true;
+        var titleFromLine = line.replace(match[0], "").replace(/\[[^\]]+\]\([^\)]+\)/g, "").trim();
+        books.push({
+          title: normalizeBookTitle(titleFromLine),
+          url: rawUrl
+        });
+      }
+      rawUrlPattern.lastIndex = 0;
+    });
+
+    return books;
+  }
+
+  function extractAmazonLink(markdown) {
+    if (!markdown) {
+      return null;
+    }
+
+    var match = markdown.match(/https?:\/\/(?:www\.)?(?:amazon\.[^\s)\]]+|amzn\.to\/[^\s)\]]+)/i);
+    if (!match || !match[0]) {
+      return null;
+    }
+
+    var candidate = match[0].replace(/[\],.;!?]+$/, "");
+    try {
+      var parsed = new URL(candidate);
+      return parsed.href;
+    } catch (error) {
+      return null;
+    }
+  }
+
   function stripMarkdown(text) {
     return text
       .replace(/```[\s\S]*?```/g, "")
@@ -124,7 +214,12 @@
     if (!markdown) {
       return "No preview text available.";
     }
-    var plain = stripMarkdown(markdown).replace(/\n/g, " ").trim();
+
+    var withoutAmazon = markdown
+      .replace(/https?:\/\/(?:www\.)?(?:amazon\.[^\s)\]]+|amzn\.to\/[^\s)\]]+)/gi, "")
+      .trim();
+
+    var plain = stripMarkdown(withoutAmazon).replace(/\n/g, " ").trim();
     if (plain.length <= limit) {
       return plain;
     }
@@ -153,11 +248,63 @@
     return '<div class="skill-badges">' + tagHtml + "</div>";
   }
 
+  function renderAmazonButton(url) {
+    if (!url) {
+      return "";
+    }
+    return '<p><a href="' +
+      escapeHtml(url) +
+      '" class="button" target="_blank" rel="noopener">View on Amazon</a></p>';
+  }
+
   function renderList(issues) {
+    var books = [];
+    issues.forEach(function (issue) {
+      var issueBooks = extractBooksFromMarkdown(issue.body || "");
+      issueBooks.forEach(function (book) {
+        books.push({
+          title: book.title,
+          url: book.url,
+          issueNumber: issue.number,
+          createdAt: issue.created_at
+        });
+      });
+    });
+
+    if (books.length > 0) {
+      var bookCards = books
+        .map(function (book) {
+          return (
+            '<article class="box blog-card">' +
+            "<h2>" +
+            escapeHtml(book.title) +
+            "</h2>" +
+            '<p class="blog-meta">' +
+            formatDate(book.createdAt) +
+            "</p>" +
+            renderAmazonButton(book.url) +
+            '<p><a href="?post=' +
+            book.issueNumber +
+            '">View notes</a></p>' +
+            "</article>"
+          );
+        })
+        .join("");
+
+      listContainer.innerHTML = bookCards;
+      setVisibility(listContainer, true);
+      setVisibility(postContainer, false);
+      setVisibility(emptyState, false);
+      setVisibility(errorState, false);
+      setVisibility(searchEmptyState, false);
+      return;
+    }
+
     var cards = issues
       .map(function (issue) {
         var excerpt = toExcerpt(issue.body || "", 180);
         var tags = getTags(issue.labels || []);
+        var amazonUrl = extractAmazonLink(issue.body || "");
         return (
           '<article class="box blog-card">' +
           '<h2><a href="?post=' +
@@ -171,6 +318,7 @@
           "<p>" +
           escapeHtml(excerpt) +
           "</p>" +
+          renderAmazonButton(amazonUrl) +
           renderTags(tags) +
           "</article>"
         );
@@ -240,19 +388,9 @@
     });
   }
 
-  function renderMath(container) {
-    if (!container || !window.MathJax || !window.MathJax.typesetPromise) {
-      return;
-    }
-
-    window.MathJax.typesetClear([container]);
-    window.MathJax.typesetPromise([container]).catch(function () {
-      return;
-    });
-  }
-
   function renderPost(issue) {
     var tags = getTags(issue.labels || []);
+    var amazonUrl = extractAmazonLink(issue.body || "");
     var headerHtml =
       '<article class="box blog-card blog-post">' +
       "<h2>" +
@@ -260,9 +398,12 @@
       "</h2>" +
       '<p class="blog-meta">' +
       formatDate(issue.created_at) +
-      "</p>" +
-      '<p><a href="/blog/" class="button">Back to Blog</a></p>';
+      "</p>";
     var footerHtml =
+      renderAmazonButton(amazonUrl) +
+      '<p><a href="' +
+      issue.html_url +
+      '" target="_blank" rel="noopener">View source issue on GitHub</a></p>' +
       renderTags(tags) +
       "</article>";
 
@@ -275,7 +416,6 @@
           "</div>" +
           footerHtml;
         enhanceCodeBlocks(postContainer);
-        renderMath(postContainer);
       })
       .catch(function () {
         postContainer.innerHTML =
@@ -287,7 +427,6 @@
           "</p></div>" +
           footerHtml;
         enhanceCodeBlocks(postContainer);
-        renderMath(postContainer);
       });
 
     setVisibility(listContainer, false);

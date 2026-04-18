@@ -27,6 +27,11 @@
 			</header>
 			<main class="blog-main">
 				{{ content }}
+				<section class="blog-search" id="blog-search-wrap">
+					<label for="issues-search" class="blog-search-label">Search posts</label>
+					<input type="search" id="issues-search" placeholder="Search by title, tags, or content" autocomplete="off" />
+				</section>
+
 				<article id="issues-loading" class="box blog-card">
 					<h2>Loading posts...</h2>
 					<p>Fetching posts from GitHub Issues.</p>
@@ -40,6 +45,11 @@
 				<article id="issues-error" class="box blog-card" style="display: none;">
 					<h2>Could not load posts</h2>
 					<p>GitHub API might be rate-limited right now. Please refresh in a bit.</p>
+				</article>
+
+				<article id="issues-search-empty" class="box blog-card" style="display: none;">
+					<h2>No matching posts</h2>
+					<p>Try a different keyword.</p>
 				</article>
 
 				<section id="issues-blog-list" class="blog-list" style="display: none;"></section>
@@ -56,6 +66,18 @@
 			</main>
 		</div>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+		<script>
+			window.MathJax = {
+				tex: {
+					inlineMath: [["$", "$"], ["\\(", "\\)"]],
+					displayMath: [["$$", "$$"], ["\\[", "\\]"]]
+				},
+				options: {
+					skipHtmlTags: ["script", "noscript", "style", "textarea", "pre", "code"]
+				}
+			};
+		</script>
+		<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 		<script src="/assets/js/blog-issues.js"></script>
 	</body>
 </html>

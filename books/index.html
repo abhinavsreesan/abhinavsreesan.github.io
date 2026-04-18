@@ -1,51 +1,51 @@
 <!DOCTYPE HTML>
 <html lang="en">
 	<head>
-		<title>Blog | Abhinav Sreesan</title>
+		<title>Books | Abhinav Sreesan</title>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-		<meta name="description" content="Notes on data engineering learnings, references, and implementation patterns." />
+		<meta name="description" content="Books and references curated from GitHub issues labeled books." />
 		<link rel="stylesheet" href="/assets/css/main.css" />
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
-		<link rel="alternate" type="application/atom+xml" title="Blog Issues Feed" href="https://github.com/abhinavsreesan/abhinavsreesan.github.io/labels/blog.atom" />
+		<link rel="alternate" type="application/atom+xml" title="Books Issues Feed" href="https://github.com/abhinavsreesan/abhinavsreesan.github.io/labels/books.atom" />
 		<link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
 		<link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
 		<link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
 		<link rel="manifest" href="/images/site.webmanifest">
 	</head>
 	<body class="blog-page">
-		<div class="blog-shell">
-			<header class="blog-header">
-				<p class="hero-kicker">Data Engineering Notes</p>
-				<h1>Blog</h1>
-				<p>Notes on data engineering learnings, references, and implementation patterns.</p>
+		<div class="blog-shell books-shell">
+			<header class="blog-header books-header">
+				<p class="hero-kicker">Reading List</p>
+				<h1>Books</h1>
+				<p>Book notes, recommendations, and direct links for quick access.</p>
 				<ul class="actions fixed">
 					<li><a href="/" class="button">Back to Portfolio</a></li>
 				</ul>
 			</header>
 			<main class="blog-main">
 				<section class="blog-search" id="blog-search-wrap">
-					<label for="issues-search" class="blog-search-label">Search posts</label>
+					<label for="issues-search" class="blog-search-label">Search books</label>
 					<input type="search" id="issues-search" placeholder="Search by title, tags, or content" autocomplete="off" />
 				</section>
 
 				<article id="issues-loading" class="box blog-card">
-					<h2>Loading posts...</h2>
-					<p>Fetching posts from GitHub Issues.</p>
+					<h2>Loading books...</h2>
+					<p>Fetching books from GitHub Issues.</p>
 				</article>
 
 				<article id="issues-empty" class="box blog-card" style="display: none;">
-					<h2>No posts yet</h2>
-					<p>Create a GitHub issue and add the <code>blog</code> label to publish it here.</p>
+					<h2>No books yet</h2>
+					<p>Create a GitHub issue and add the <code>books</code> label to publish a book here.</p>
 				</article>
 
 				<article id="issues-error" class="box blog-card" style="display: none;">
-					<h2>Could not load posts</h2>
+					<h2>Could not load books</h2>
 					<p>GitHub API might be rate-limited right now. Please refresh in a bit.</p>
 				</article>
 
 				<article id="issues-search-empty" class="box blog-card" style="display: none;">
-					<h2>No matching posts</h2>
+					<h2>No matching books</h2>
 					<p>Try a different keyword.</p>
 				</article>
 
@@ -55,26 +55,14 @@
 				<section class="blog-list" id="blog-noscript-fallback">
 					<noscript>
 						<article class="box blog-card">
-							<h2>JavaScript required for issue-powered blog</h2>
-							<p>This blog uses GitHub Issues as a CMS and needs JavaScript enabled to render posts.</p>
+							<h2>JavaScript required for books page</h2>
+							<p>This page uses GitHub Issues as a CMS and needs JavaScript enabled to render books.</p>
 						</article>
 					</noscript>
 				</section>
 			</main>
 		</div>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-		<script>
-			window.MathJax = {
-				tex: {
-					inlineMath: [["$", "$"], ["\\(", "\\)"]],
-					displayMath: [["$$", "$$"], ["\\[", "\\]"]]
-				},
-				options: {
-					skipHtmlTags: ["script", "noscript", "style", "textarea", "pre", "code"]
-				}
-			};
-		</script>
-		<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-		<script src="/assets/js/blog-issues.js"></script>
+		<script src="/assets/js/books-issues.js"></script>
 	</body>
 </html>

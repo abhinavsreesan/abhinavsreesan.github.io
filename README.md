@@ -15,6 +15,7 @@ A personal portfolio website for GitHub Pages showcasing experience, projects, s
 - Certifications and academic publication links.
 - Resume download and contact links.
 - Blog powered by Jekyll posts in markdown.
+- Books page powered by GitHub Issues (`books` label) with Amazon links parsed from issue body.
 
 ## Structure
 
@@ -23,6 +24,7 @@ A personal portfolio website for GitHub Pages showcasing experience, projects, s
 - `assets/js/` - Section transitions and navigation behavior.
 - `_posts/` - Markdown blog posts (`YYYY-MM-DD-title.md`).
 - `blog/` - Blog index page.
+- `books/` - Books index page.
 - `_layouts/` - Blog and post layouts for Jekyll.
 - `assets/resume/Abhinav's Resume Rev2.pdf` - Resume PDF.
 - `assets/resume/Abhinav's Resume Rev2.md` - Resume markdown source used for content updates.
