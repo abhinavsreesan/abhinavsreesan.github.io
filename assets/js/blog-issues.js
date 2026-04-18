@@ -1,9 +1,17 @@
 (function () {
-  var owner = "abhinavsreesan";
-  var repo = "abhinavsreesan.github.io";
-  var label = "blog";
+  var body = document.body;
+  if (!body) {
+    return;
+  }
+
+  var owner = body.getAttribute("data-owner") || "abhinavsreesan";
+  var repo = body.getAttribute("data-repo") || "abhinavsreesan.github.io";
+  var baseLabel = body.getAttribute("data-label") || "blog";
+  var singular = body.getAttribute("data-singular") || "post";
+  var plural = body.getAttribute("data-plural") || "posts";
+
   var perPage = 100;
-  var cacheKey = "blog_issues_cache_v1";
+  var cacheKey = "issues_cache_v2_" + baseLabel;
   var cacheTtlMs = 10 * 60 * 1000;
   var markdownApi = "https://api.github.com/markdown";
   var issuesApi =
@@ -12,23 +20,32 @@
     "/" +
     repo +
     "/issues?state=all&labels=" +
-    encodeURIComponent(label) +
+    encodeURIComponent(baseLabel) +
     "&per_page=" +
     perPage +
     "&sort=created&direction=desc";
 
-  var listContainer = document.getElementById("issues-blog-list");
-  var postContainer = document.getElementById("issues-blog-post");
+  var listContainer = document.getElementById("issues-list");
+  var postContainer = document.getElementById("issues-post");
   var emptyState = document.getElementById("issues-empty");
   var errorState = document.getElementById("issues-error");
   var loadingState = document.getElementById("issues-loading");
+  var searchInput = document.getElementById("issues-search");
+  var tagsContainer = document.getElementById("issues-tags");
+  var summary = document.getElementById("issues-summary");
 
   if (!listContainer || !postContainer || !loadingState || !emptyState || !errorState) {
     return;
   }
 
+  var state = {
+    allIssues: [],
+    selectedTag: "",
+    query: ""
+  };
+
   function escapeHtml(text) {
-    return text
+    return String(text)
       .replace(/&/g, "&amp;")
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;")
@@ -45,6 +62,13 @@
     });
   }
 
+  function toSlug(value) {
+    return String(value)
+      .toLowerCase()
+      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9\-]/g, "");
+  }
+
   function getQueryPostNumber() {
     var params = new URLSearchParams(window.location.search);
     var post = params.get("post");
@@ -57,10 +81,6 @@
 
   function setVisibility(element, visible) {
     element.style.display = visible ? "block" : "none";
-  }
-
-  function setLoading(visible) {
-    setVisibility(loadingState, visible);
   }
 
   function getCache() {
@@ -103,7 +123,7 @@
   }
 
   function stripMarkdown(text) {
-    return text
+    return String(text || "")
       .replace(/```[\s\S]*?```/g, "")
       .replace(/`([^`]+)`/g, "$1")
       .replace(/!\[[^\]]*\]\([^\)]*\)/g, "")
@@ -126,46 +146,153 @@
   }
 
   function getTags(labelsArray) {
-    return labelsArray
+    return (labelsArray || [])
       .map(function (item) {
         return item.name;
       })
       .filter(function (name) {
-        return name.toLowerCase() !== label;
+        return name.toLowerCase() !== baseLabel.toLowerCase();
+      })
+      .sort(function (a, b) {
+        return a.localeCompare(b);
       });
   }
 
-  function renderTags(tags) {
+  function renderTagBadges(tags) {
     if (!tags.length) {
       return "";
     }
     var tagHtml = tags
       .map(function (tag) {
-        return '<span class="skill-badge">' + escapeHtml(tag) + "</span>";
+        return '<span class="issue-tag">' + escapeHtml(tag) + "</span>";
       })
       .join("");
-    return '<div class="skill-badges">' + tagHtml + "</div>";
+    return '<div class="issue-tags">' + tagHtml + "</div>";
   }
 
-  function renderList(issues) {
-    var cards = issues
+  function getAllTags(issues) {
+    var tagMap = {};
+    issues.forEach(function (issue) {
+      getTags(issue.labels || []).forEach(function (tag) {
+        tagMap[tag] = true;
+      });
+    });
+    return Object.keys(tagMap).sort(function (a, b) {
+      return a.localeCompare(b);
+    });
+  }
+
+  function matchesSearch(issue, query) {
+    if (!query) {
+      return true;
+    }
+    var haystack = [issue.title || "", issue.body || "", getTags(issue.labels || []).join(" ")]
+      .join(" ")
+      .toLowerCase();
+    return haystack.indexOf(query.toLowerCase()) !== -1;
+  }
+
+  function matchesTag(issue, tag) {
+    if (!tag) {
+      return true;
+    }
+    return getTags(issue.labels || []).some(function (item) {
+      return item.toLowerCase() === tag.toLowerCase();
+    });
+  }
+
+  function getFilteredIssues() {
+    return state.allIssues.filter(function (issue) {
+      return matchesTag(issue, state.selectedTag) && matchesSearch(issue, state.query);
+    });
+  }
+
+  function updateSummary(total, filtered) {
+    if (!summary) {
+      return;
+    }
+    var scope = filtered === total ? "all" : String(filtered);
+    var activeTag = state.selectedTag ? ' with tag "' + state.selectedTag + '"' : "";
+    var activeQuery = state.query ? ' matching "' + state.query + '"' : "";
+    summary.textContent = "Showing " + scope + " of " + total + " " + plural + activeTag + activeQuery + ".";
+  }
+
+  function renderTagFilters(tags) {
+    if (!tagsContainer) {
+      return;
+    }
+    if (!tags.length) {
+      tagsContainer.innerHTML = "";
+      return;
+    }
+    var buttons =
+      '<button class="tag-filter' +
+      (state.selectedTag === "" ? " active" : "") +
+      '" data-tag="">All</button>' +
+      tags
+        .map(function (tag) {
+          var active = state.selectedTag.toLowerCase() === tag.toLowerCase() ? " active" : "";
+          return '<button class="tag-filter' + active + '" data-tag="' + escapeHtml(tag) + '">#' + escapeHtml(tag) + "</button>";
+        })
+        .join("");
+    tagsContainer.innerHTML = buttons;
+  }
+
+  function bindFilterHandlers() {
+    if (searchInput) {
+      searchInput.addEventListener("input", function (event) {
+        state.query = event.target.value.trim();
+        renderListView();
+      });
+    }
+
+    if (tagsContainer) {
+      tagsContainer.addEventListener("click", function (event) {
+        var target = event.target;
+        if (!target || !target.classList.contains("tag-filter")) {
+          return;
+        }
+        state.selectedTag = target.getAttribute("data-tag") || "";
+        renderListView();
+      });
+    }
+  }
+
+  function renderListView() {
+    var filtered = getFilteredIssues();
+    var tags = getAllTags(state.allIssues);
+    renderTagFilters(tags);
+    updateSummary(state.allIssues.length, filtered.length);
+
+    if (!filtered.length) {
+      setVisibility(listContainer, false);
+      setVisibility(postContainer, false);
+      setVisibility(emptyState, true);
+      setVisibility(errorState, false);
+      return;
+    }
+
+    var cards = filtered
       .map(function (issue) {
-        var excerpt = toExcerpt(issue.body || "", 180);
-        var tags = getTags(issue.labels || []);
+        var excerpt = toExcerpt(issue.body || "", 190);
+        var tagsHtml = renderTagBadges(getTags(issue.labels || []));
+        var issueSlug = toSlug(issue.title || String(issue.number));
         return (
-          '<article class="box blog-card">' +
+          '<article class="issue-card" id="' +
+          issueSlug +
+          '">' +
           '<h2><a href="?post=' +
           issue.number +
           '">' +
           escapeHtml(issue.title) +
           "</a></h2>" +
-          '<p class="blog-meta">' +
+          '<p class="issue-meta">' +
           formatDate(issue.created_at) +
           "</p>" +
           "<p>" +
           escapeHtml(excerpt) +
           "</p>" +
-          renderTags(tags) +
+          tagsHtml +
           "</article>"
         );
       })
@@ -202,68 +329,40 @@
     if (!container || typeof window.hljs === "undefined") {
       return;
     }
-
-    var githubBlocks = container.querySelectorAll(".highlight pre");
-    githubBlocks.forEach(function (pre) {
-      if (pre.querySelector("code")) {
-        return;
-      }
-
-      var language = "";
-      var wrapper = pre.parentElement;
-      if (wrapper) {
-        var match = (wrapper.className || "").match(/highlight-source-([a-z0-9_+-]+)/i);
-        if (match && match[1]) {
-          language = match[1].toLowerCase();
-        }
-      }
-
-      var raw = pre.textContent || "";
-      pre.innerHTML =
-        '<code' + (language ? ' class="language-' + language + '"' : "") + ">" + escapeHtml(raw) + "</code>";
-    });
-
     var blocks = container.querySelectorAll("pre code");
     blocks.forEach(function (block) {
-      var pre = block.parentElement;
-      if (pre && pre.getAttribute("lang") && !block.className.match(/language-/)) {
-        block.classList.add("language-" + pre.getAttribute("lang"));
-      }
       window.hljs.highlightElement(block);
     });
   }
 
   function renderPost(issue) {
     var tags = getTags(issue.labels || []);
+    var title = escapeHtml(issue.title);
     var headerHtml =
-      '<article class="box blog-card blog-post">' +
-      "<h2>" +
-      escapeHtml(issue.title) +
+      '<article class="issues-panel blog-post">' +
+      '<h2>' +
+      title +
       "</h2>" +
-      '<p class="blog-meta">' +
+      '<p class="issue-meta">' +
       formatDate(issue.created_at) +
       "</p>";
     var footerHtml =
       '<p><a href="' +
       issue.html_url +
       '" target="_blank" rel="noopener">View source issue on GitHub</a></p>' +
-      renderTags(tags) +
+      renderTagBadges(tags) +
       "</article>";
 
     renderMarkdown(issue.body || "")
       .then(function (contentHtml) {
         postContainer.innerHTML =
-          headerHtml +
-          '<div class="issue-markdown">' +
-          contentHtml +
-          "</div>" +
-          footerHtml;
+          headerHtml + '<div class="issue-markdown rendered-markdown">' + contentHtml + "</div>" + footerHtml;
         enhanceCodeBlocks(postContainer);
       })
       .catch(function () {
         postContainer.innerHTML =
           headerHtml +
-          '<div class="issue-markdown"><p>' +
+          '<div class="issue-markdown rendered-markdown"><p>' +
           escapeHtml(issue.body || "")
             .replace(/\n\n/g, "</p><p>")
             .replace(/\n/g, "<br />") +
@@ -271,6 +370,10 @@
           footerHtml;
         enhanceCodeBlocks(postContainer);
       });
+
+    if (summary) {
+      summary.textContent = "Viewing 1 " + singular + ". Use the navigation to return to the list.";
+    }
 
     setVisibility(listContainer, false);
     setVisibility(postContainer, true);
@@ -306,40 +409,39 @@
   }
 
   function start() {
-    setLoading(true);
-
     var queryPost = getQueryPostNumber();
+    bindFilterHandlers();
+    setVisibility(loadingState, true);
+
     var cached = getCache();
     if (cached) {
-      var cachedIssues = normalizeIssues(cached);
-      if (cachedIssues.length > 0) {
+      state.allIssues = normalizeIssues(cached);
+      if (state.allIssues.length) {
         if (queryPost) {
-          var cachedPost = cachedIssues.find(function (item) {
+          var cachedPost = state.allIssues.find(function (item) {
             return item.number === queryPost;
           });
           if (cachedPost) {
             renderPost(cachedPost);
-          } else {
-            renderEmpty();
           }
         } else {
-          renderList(cachedIssues);
+          renderListView();
         }
       }
     }
 
     fetchIssues()
       .then(function (items) {
-        var issues = normalizeIssues(items);
-        setCache(issues);
+        state.allIssues = normalizeIssues(items);
+        setCache(state.allIssues);
 
-        if (!issues.length) {
+        if (!state.allIssues.length) {
           renderEmpty();
           return;
         }
 
         if (queryPost) {
-          var post = issues.find(function (item) {
+          var post = state.allIssues.find(function (item) {
             return item.number === queryPost;
           });
           if (!post) {
@@ -350,7 +452,7 @@
           return;
         }
 
-        renderList(issues);
+        renderListView();
       })
       .catch(function () {
         if (!cached) {
@@ -358,7 +460,7 @@
         }
       })
       .finally(function () {
-        setLoading(false);
+        setVisibility(loadingState, false);
       });
   }
 

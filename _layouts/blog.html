@@ -1,61 +1,75 @@
 ---
 ---
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html lang="en">
 	<head>
 		<title>{{ page.title }} | {{ site.title }}</title>
 		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-		<meta name="description" content="{{ site.description }}" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="description" content="{{ page.description | default: site.description }}" />
 		<link rel="stylesheet" href="/assets/css/main.css" />
-		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
-		<link rel="alternate" type="application/atom+xml" title="Blog Issues Feed" href="https://github.com/abhinavsreesan/abhinavsreesan.github.io/labels/blog.atom" />
-		<link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
-		<link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
-		<link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
-		<link rel="manifest" href="/images/site.webmanifest">
+		<link rel="stylesheet" href="/assets/css/simple-layout.css" />
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+		<link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png" />
+		<link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png" />
+		<link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png" />
+		<link rel="manifest" href="/images/site.webmanifest" />
 	</head>
-	<body class="blog-page">
-		<div class="blog-shell">
-			<header class="blog-header">
-				<p class="hero-kicker">Data Engineering Notes</p>
+	<body
+		class="issues-site"
+		data-page="{% if page.issue_label == 'bookshelf' %}bookshelf{% else %}blog{% endif %}"
+		data-owner="{{ page.issue_owner | default: site.github.owner_name | default: 'abhinavsreesan' }}"
+		data-repo="{{ page.issue_repo | default: site.github.repository_name | default: 'abhinavsreesan.github.io' }}"
+		data-label="{{ page.issue_label | default: 'blog' }}"
+		data-singular="{{ page.issue_singular | default: 'post' }}"
+		data-plural="{{ page.issue_plural | default: 'posts' }}"
+	>
+		<header class="issues-header">
+			<div class="container topbar">
+				<a class="brand" href="/">Abhinav Sreesan</a>
+				<nav class="issues-nav" data-site-nav></nav>
+			</div>
+		</header>
+
+		<main class="container">
+			<section class="issues-panel">
+				<p class="eyebrow">GitHub Issues Powered</p>
 				<h1>{{ page.title }}</h1>
-				<p>{{ page.description | default: "Short markdown posts on implementation patterns, lessons learned, and practical references." }}</p>
-				<ul class="actions fixed">
-					<li><a href="/" class="button">Back to Portfolio</a></li>
-				</ul>
-			</header>
-			<main class="blog-main">
-				{{ content }}
-				<article id="issues-loading" class="box blog-card">
-					<h2>Loading posts...</h2>
-					<p>Fetching posts from GitHub Issues.</p>
-				</article>
+				<p>{{ page.description | default: "Notes and references published from GitHub Issues." }}</p>
+				<div class="issues-toolbar" id="issues-toolbar">
+					<input id="issues-search" class="issues-search" type="search" placeholder="Search {{ page.issue_plural | default: 'posts' }}..." aria-label="Search content" />
+					<div id="issues-tags" class="tag-filter-list"></div>
+					<p id="issues-summary" class="issues-summary"></p>
+				</div>
+			</section>
 
-				<article id="issues-empty" class="box blog-card" style="display: none;">
-					<h2>No posts yet</h2>
-					<p>Create a GitHub issue and add the <code>blog</code> label to publish it here.</p>
-				</article>
+			<article id="issues-loading" class="issues-panel">
+				<h2>Loading...</h2>
+				<p>Fetching {{ page.issue_plural | default: "posts" }} from GitHub Issues.</p>
+			</article>
 
-				<article id="issues-error" class="box blog-card" style="display: none;">
-					<h2>Could not load posts</h2>
-					<p>GitHub API might be rate-limited right now. Please refresh in a bit.</p>
-				</article>
+			<article id="issues-empty" class="issues-panel" style="display: none;">
+				<h2>No {{ page.issue_plural | default: "posts" }} found</h2>
+				<p>Create a GitHub issue and add the <code>{{ page.issue_label | default: "blog" }}</code> label to publish it here.</p>
+			</article>
 
-				<section id="issues-blog-list" class="blog-list" style="display: none;"></section>
-				<section id="issues-blog-post" style="display: none;"></section>
+			<article id="issues-error" class="issues-panel" style="display: none;">
+				<h2>Could not load content</h2>
+				<p>The GitHub API may be rate-limited right now. Please refresh shortly.</p>
+			</article>
 
-				<section class="blog-list" id="blog-noscript-fallback">
-					<noscript>
-						<article class="box blog-card">
-							<h2>JavaScript required for issue-powered blog</h2>
-							<p>This blog uses GitHub Issues as a CMS and needs JavaScript enabled to render posts.</p>
-						</article>
-					</noscript>
+			<section id="issues-list" class="issues-list" style="display: none;"></section>
+			<section id="issues-post" style="display: none;"></section>
+
+			<noscript>
+				<section class="issues-panel">
+					<h2>JavaScript required</h2>
+					<p>This page uses GitHub Issues as a CMS and requires JavaScript enabled to render content.</p>
 				</section>
-			</main>
-		</div>
+			</noscript>
+		</main>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+		<script src="/assets/js/site-shell.js"></script>
 		<script src="/assets/js/blog-issues.js"></script>
 	</body>
 </html>

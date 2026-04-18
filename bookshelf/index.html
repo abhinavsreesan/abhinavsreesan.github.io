@@ -1,13 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Blog | Abhinav Sreesan</title>
+    <title>Bookshelf | Abhinav Sreesan</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta
-      name="description"
-      content="Notes on data engineering learnings, references, and implementation patterns."
-    />
+    <meta name="description" content="Books I have read and notes I want to retain." />
     <link rel="stylesheet" href="/assets/css/main.css" />
     <link rel="stylesheet" href="/assets/css/simple-layout.css?v=20260418e" />
     <link
@@ -19,12 +16,12 @@
   </head>
   <body
     class="issues-site"
-    data-page="blog"
+    data-page="bookshelf"
     data-owner="abhinavsreesan"
     data-repo="abhinavsreesan.github.io"
-    data-label="blog"
-    data-singular="post"
-    data-plural="posts"
+    data-label="bookshelf"
+    data-singular="book"
+    data-plural="books"
   >
     <header class="issues-header">
       <div class="container topbar">
@@ -35,30 +32,24 @@
 
     <main class="container">
       <section class="issues-panel">
-        <div class="issues-top-row">
-          <div>
-            <p class="eyebrow">GitHub Issues Powered</p>
-            <h1>Blog</h1>
-            <p>Notes on data engineering learnings, references, and implementation patterns.</p>
-          </div>
-          <div class="issues-search-wrap issues-search-side">
-            <input id="issues-search" class="issues-search" type="search" placeholder="Search posts..." aria-label="Search posts" />
-          </div>
-        </div>
+        <p class="eyebrow">GitHub Issues Powered</p>
+        <h1>Bookshelf</h1>
+        <p>Books I have read and notes I want to retain.</p>
         <div class="issues-toolbar" id="issues-toolbar">
-          <p id="issues-summary" class="issues-summary"></p>
+          <input id="issues-search" class="issues-search" type="search" placeholder="Search books..." aria-label="Search books" />
           <div id="issues-tags" class="tag-filter-list"></div>
+          <p id="issues-summary" class="issues-summary"></p>
         </div>
       </section>
 
       <article id="issues-loading" class="issues-panel">
         <h2>Loading...</h2>
-        <p>Fetching posts from GitHub Issues.</p>
+        <p>Fetching books from GitHub Issues.</p>
       </article>
 
       <article id="issues-empty" class="issues-panel" style="display: none;">
-        <h2>No posts found</h2>
-        <p>Create a GitHub issue and add the <code>blog</code> label to publish it here.</p>
+        <h2>No books found</h2>
+        <p>Create a GitHub issue and add the <code>bookshelf</code> label to publish it here.</p>
       </article>
 
       <article id="issues-error" class="issues-panel" style="display: none;">

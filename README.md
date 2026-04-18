@@ -2,7 +2,7 @@
 
 [![pages-build-deployment](https://github.com/abhinavsreesan/abhinavsreesan.github.io/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/abhinavsreesan/abhinavsreesan.github.io/actions/workflows/pages/pages-build-deployment)
 
-A personal portfolio website for GitHub Pages showcasing experience, projects, skills, certifications, and contact details with project deep-dives, a downloadable resume, and a markdown-based blog.
+A personal portfolio website for GitHub Pages showcasing experience, projects, skills, certifications, and contact details with project deep-dives, a downloadable resume, and issue-powered content pages.
 
 ## Live Site
 
@@ -10,11 +10,12 @@ A personal portfolio website for GitHub Pages showcasing experience, projects, s
 
 ## Features
 
-- One-page, interactive layout with section-based navigation.
+- Simpler one-page layout with sticky top navigation and section-based anchors.
 - Project summaries with detailed project pages.
 - Certifications and academic publication links.
 - Resume download and contact links.
-- Blog powered by Jekyll posts in markdown.
+- Blog powered by GitHub Issues (`blog` label) with tag filters and search.
+- Bookshelf powered by GitHub Issues (`bookshelf` label) with tag filters and search.
 
 ## Structure
 
@@ -23,18 +24,39 @@ A personal portfolio website for GitHub Pages showcasing experience, projects, s
 - `assets/js/` - Section transitions and navigation behavior.
 - `_posts/` - Markdown blog posts (`YYYY-MM-DD-title.md`).
 - `blog/` - Blog index page.
+- `bookshelf/` - Bookshelf index page.
 - `_layouts/` - Blog and post layouts for Jekyll.
 - `assets/resume/Abhinav's Resume Rev2.pdf` - Resume PDF.
 - `assets/resume/Abhinav's Resume Rev2.md` - Resume markdown source used for content updates.
 - `images/profile.jpg` - Profile image used in the header.
 - `CNAME` - Custom domain configuration (optional).
+- `scripts/serve-local.sh` - Simple local server script (no Ruby required).
 
 ## Local Development
 
-You can open `index.html` directly, or run a simple local server:
+Use this branch locally without Ruby:
 
 ```bash
-python -m http.server 8080
+git fetch origin
+git checkout refactor/simple-layout-issues-search
+```
+
+Start a local server:
+
+```bash
+./scripts/serve-local.sh 8080
+```
+
+Windows one-click setup and run:
+
+```bat
+scripts\setup-local-windows.bat
+```
+
+Direct PowerShell option:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\setup-local-windows.ps1
 ```
 
 Then visit:
@@ -43,7 +65,13 @@ Then visit:
 http://localhost:8080
 ```
 
-For Jekyll blog preview, install dependencies and run:
+Alternative command (same result):
+
+```bash
+python3 -m http.server 8080
+```
+
+If you still want Jekyll preview for markdown posts, install dependencies and run:
 
 ```bash
 bundle exec jekyll serve
@@ -77,7 +105,26 @@ Edit summary cards and detailed project sections in `index.html`:
 Links and details are in the `#certifications` section in `index.html`.
 
 ### Blog posts
-Create a new file in `_posts/` using:
+Create a GitHub issue in `abhinavsreesan/abhinavsreesan.github.io` with label `blog`.
+
+Recommended:
+
+- Add extra labels like `azure`, `spark`, `architecture` for tag filtering.
+- Write post content in issue body using markdown.
+
+### Bookshelf entries
+
+Create a GitHub issue with label `bookshelf`.
+
+Recommended:
+
+- Keep issue title as the book name.
+- Add labels like `non-fiction`, `data`, `leadership` for filtering.
+- Use issue body for notes, takeaways, and highlights.
+
+### Optional Jekyll markdown posts
+
+You can still create markdown files in `_posts/` using:
 
 - `YYYY-MM-DD-title.md`
 
