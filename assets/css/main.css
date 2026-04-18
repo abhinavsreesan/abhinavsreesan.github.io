@@ -2225,3 +2225,43 @@ body.blog-page {
 		padding: 1.5rem 1.2rem;
 	}
 }
+
+@media screen and (max-width: 736px) {
+	#header.hero nav {
+		width: 100%;
+	}
+
+	#header.hero nav ul {
+		width: 100%;
+		max-width: 22rem;
+		margin: 0 auto;
+		flex-direction: column;
+		flex-wrap: nowrap;
+		justify-content: flex-start;
+		border-radius: 0.65rem;
+	}
+
+	#header.hero nav ul li {
+		width: 100%;
+		border-top: solid 1px var(--color-border);
+	}
+
+	#header.hero nav ul li:first-child {
+		border-top: 0;
+	}
+
+	#header.hero nav ul li + li:before {
+		display: none;
+	}
+
+	#header.hero nav ul li a {
+		width: 100%;
+		min-width: 0;
+		height: 2.85rem;
+		line-height: 2.85rem;
+		padding: 0 1rem;
+		font-size: 0.7rem;
+		letter-spacing: 0.1rem;
+		text-align: center;
+	}
+}
