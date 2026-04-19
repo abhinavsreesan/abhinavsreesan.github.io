@@ -59,6 +59,39 @@ http://localhost:4000
 
 ## Updating Content
 
+### Home page markdown-managed copy
+
+The landing page now uses one markdown file per major page section:
+
+- `_includes/content/home/overview.md`
+- `_includes/content/home/experience.md`
+- `_includes/content/home/projects.md`
+- `_includes/content/home/certifications.md`
+- `_includes/content/home/contact.md`
+
+For files that contain multiple blocks, `index.html` splits using:
+
+- Delimiter: `[[[SECTION]]]`
+
+Keep delimiter order unchanged inside `overview.md`, `experience.md`, and `projects.md`.
+
+Section mapping for delimiter-based files:
+
+- `overview.md`: intro, at-a-glance stats (HTML block), what-I-build list, core-platform badges (HTML block), recent impact list.
+- `experience.md`: intro, YipitData bullets, Neudesic bullets, TCS bullets.
+- `projects.md`: dynamic project list. Add a new project block and it will automatically appear in Projects and create a matching `View details` article.
+
+`projects.md` structure:
+
+- File starts with one projects intro paragraph.
+- Separate each project with `[[[PROJECT]]]`.
+- Inside each project block, split fields with `[[[FIELD]]]` in this exact order:
+  1) project title
+  2) project card summary
+  3) project card metadata (optional bullets)
+  4) details intro paragraph
+  5) details markdown body (can include `###` headings and bullets)
+
 ### Resume
 Replace the PDF at:
 
@@ -96,6 +129,75 @@ excerpt: "One-line summary of the post"
 
 Write your markdown content here.
 ```
+
+### Books issues format (recommended)
+
+Create a GitHub issue with label `books` and optionally `books-academic`.
+
+You can use either:
+
+- one issue per book, or
+- one issue with multiple ` ```book ` blocks (now supported)
+
+Use this issue body template:
+
+```md
+```book
+title: Designing Data-Intensive Applications
+author: Martin Kleppmann
+category: academic
+status: reading
+amazon: https://www.amazon.in/dp/9352135245
+cover: https://images-na.ssl-images-amazon.com/images/P/9352135245.01.LZZZZZZZ.jpg
+```
+
+Your notes here...
+```
+
+Fields:
+
+- `title` (required for best results)
+- `author` (optional)
+- `category` (optional: `academic` or `reading`)
+- `status` (optional: `reading`, `completed`, etc.)
+- `amazon` (recommended; used for button + ASIN cover fallback)
+- `cover` (optional override image)
+
+Rendering behavior:
+
+- Books are split into two sections on `/books/`:
+  - `Other Books I Am Reading`
+  - `Academic Books`
+- Category is determined by `category` field or `books-academic` label.
+- If `cover` is not provided, the site attempts to derive an Amazon cover image from the ASIN in the `amazon` URL.
+- Books are sorted by status priority (`reading` first, then `up next`/`to read`, then `completed`).
+- `reading` status renders a visible `Currently Reading` badge on the card.
+
+Multiple books in one issue example:
+
+```md
+```book
+title: Book One
+author: Author One
+category: academic
+status: reading
+amazon: https://www.amazon.in/dp/9352135245
+Notes for book one.
+```
+
+```book
+title: Book Two
+author: Author Two
+category: reading
+status: completed
+amazon: https://www.amazon.in/dp/1098108302
+Notes for book two.
+```
+```
+
+Issue template:
+
+- `.github/ISSUE_TEMPLATE/book-entry.yml`
 
 ## Deployment
 

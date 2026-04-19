@@ -5,3 +5,4 @@ baseurl: ""
 markdown: kramdown
 permalink: /blog/:year/:month/:day/:title/
 timezone: Asia/Kolkata
+repository: abhinavsreesan/abhinavsreesan.github.io

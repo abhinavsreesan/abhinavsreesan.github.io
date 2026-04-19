@@ -1,0 +1,78 @@
+name: Book entry
+description: Add a book to the Books page
+title: "Book: <title>"
+labels:
+  - books
+body:
+  - type: dropdown
+    id: category_label
+    attributes:
+      label: Category
+      description: Use academic for textbooks/research books
+      options:
+        - reading
+        - academic
+    validations:
+      required: true
+
+  - type: dropdown
+    id: status
+    attributes:
+      label: Status
+      options:
+        - reading
+        - completed
+        - up next
+    validations:
+      required: true
+
+  - type: input
+    id: title
+    attributes:
+      label: Book title
+      placeholder: Designing Data-Intensive Applications
+    validations:
+      required: true
+
+  - type: input
+    id: author
+    attributes:
+      label: Author
+      placeholder: Martin Kleppmann
+    validations:
+      required: false
+
+  - type: input
+    id: amazon
+    attributes:
+      label: Amazon URL
+      placeholder: https://www.amazon.in/dp/9352135245
+    validations:
+      required: false
+
+  - type: input
+    id: cover
+    attributes:
+      label: Cover image URL (optional)
+      placeholder: https://images-na.ssl-images-amazon.com/images/P/9352135245.01.LZZZZZZZ.jpg
+    validations:
+      required: false
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes / why this book
+      description: Add markdown notes for the detailed page.
+      value: |
+        ```book
+        title: <book title>
+        author: <author>
+        category: <reading|academic>
+        status: <reading|completed|up next>
+        amazon: <amazon url>
+        cover: <cover image url>
+        ```
+
+        Add your notes here.
+    validations:
+      required: true

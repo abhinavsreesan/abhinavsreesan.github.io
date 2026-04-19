@@ -24,6 +24,7 @@
   var loadingState = document.getElementById("issues-loading");
   var searchInput = document.getElementById("issues-search");
   var searchEmptyState = document.getElementById("issues-search-empty");
+  var booksBackLink = document.getElementById("books-back-link");
   var allIssues = [];
 
   if (!listContainer || !postContainer || !loadingState || !emptyState || !errorState) {
@@ -58,6 +59,12 @@
     return Number.isNaN(parsed) ? null : parsed;
   }
 
+  function getQueryBookId() {
+    var params = new URLSearchParams(window.location.search);
+    var book = params.get("book");
+    return book ? book.trim() : "";
+  }
+
   function setVisibility(element, visible) {
     if (!element) {
       return;
@@ -80,6 +87,22 @@
         return null;
       }
       if (Date.now() - parsed.timestamp > cacheTtlMs) {
+        return null;
+      }
+      return parsed.data;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  function getAnyCache() {
+    try {
+      var raw = localStorage.getItem(cacheKey);
+      if (!raw) {
+        return null;
+      }
+      var parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed.data)) {
         return null;
       }
       return parsed.data;
@@ -198,6 +221,230 @@
     }
   }
 
+  function parseBookBlock(blockContent) {
+    var fields = {};
+    var notes = "";
+    var lines = (blockContent || "").split(/\r?\n/);
+    var collectingNotes = false;
+    var notesLines = [];
+
+    lines.forEach(function (line) {
+      var pair = line.match(/^\s*[-*]?\s*([a-zA-Z][a-zA-Z0-9_\- ]{1,40})\s*:\s*(.+?)\s*$/);
+
+      if (!collectingNotes && pair) {
+        var key = pair[1].toLowerCase().replace(/[\s\-]+/g, "_");
+        fields[key] = pair[2].trim();
+        return;
+      }
+
+      if (line.trim() !== "" || collectingNotes) {
+        collectingNotes = true;
+        notesLines.push(line);
+      }
+    });
+
+    notes = notesLines.join("\n").trim();
+
+    return {
+      fields: fields,
+      notes: notes
+    };
+  }
+
+  function hasBookFields(fields) {
+    return (
+      !!fields.title ||
+      !!fields.book_title ||
+      !!fields.amazon ||
+      !!fields.amazon_url ||
+      !!fields.category ||
+      !!fields.author ||
+      !!fields.status
+    );
+  }
+
+  function extractBookConfigs(markdown) {
+    var source = markdown || "";
+    var blocks = [];
+    var match;
+    var bookFenceRegex = /```book\s*([\s\S]*?)```/gi;
+    var plainFenceRegex = /```\s*([\s\S]*?)```/gi;
+
+    while ((match = bookFenceRegex.exec(source)) !== null) {
+      var rawBookBlock = match[1] || "";
+      var titleMatchesInBook = rawBookBlock.match(/^\s*[-*]?\s*title\s*:/gim);
+
+      if (titleMatchesInBook && titleMatchesInBook.length > 1) {
+        rawBookBlock
+          .split(/(?=^\s*[-*]?\s*title\s*:)/gim)
+          .map(function (part) {
+            return part.trim();
+          })
+          .filter(Boolean)
+          .forEach(function (part) {
+            var parsedPart = parseBookBlock(part);
+            if (hasBookFields(parsedPart.fields || {})) {
+              blocks.push(parsedPart);
+            }
+          });
+      } else {
+        var parsedBookBlock = parseBookBlock(rawBookBlock);
+        if (hasBookFields(parsedBookBlock.fields || {})) {
+          blocks.push(parsedBookBlock);
+        }
+      }
+    }
+
+    while ((match = plainFenceRegex.exec(source)) !== null) {
+      var rawPlainBlock = match[1] || "";
+      var titleMatches = rawPlainBlock.match(/^\s*[-*]?\s*title\s*:/gim);
+
+      if (titleMatches && titleMatches.length > 1) {
+        rawPlainBlock
+          .split(/(?=^\s*[-*]?\s*title\s*:)/gim)
+          .map(function (part) {
+            return part.trim();
+          })
+          .filter(Boolean)
+          .forEach(function (part) {
+            var parsedPart = parseBookBlock(part);
+            if (hasBookFields(parsedPart.fields || {})) {
+              blocks.push(parsedPart);
+            }
+          });
+      } else {
+        var parsedPlainBlock = parseBookBlock(rawPlainBlock);
+        if (hasBookFields(parsedPlainBlock.fields || {})) {
+          blocks.push(parsedPlainBlock);
+        }
+      }
+    }
+
+    return {
+      blocks: blocks,
+      bodyWithoutConfig: source
+        .replace(/```book\s*[\s\S]*?```/gi, "")
+        .replace(/```\s*([\s\S]*?)```/gi, function (fullMatch, plainContent) {
+          var parsedPlain = parseBookBlock(plainContent || "");
+          return hasBookFields(parsedPlain.fields || {}) ? "" : fullMatch;
+        })
+        .trim()
+    };
+  }
+
+  function normalizeBookCategory(rawCategory, issueLabels) {
+    var value = (rawCategory || "").toLowerCase();
+    var hasAcademicLabel = (issueLabels || []).some(function (name) {
+      return (name || "").toLowerCase() === "books-academic";
+    });
+
+    if (
+      hasAcademicLabel ||
+      value.indexOf("academic") !== -1 ||
+      value.indexOf("acad") !== -1 ||
+      value.indexOf("textbook") !== -1 ||
+      value.indexOf("course") !== -1 ||
+      value.indexOf("research") !== -1
+    ) {
+      return "academic";
+    }
+
+    return "reading";
+  }
+
+  function normalizeBookStatus(rawStatus) {
+    var value = (rawStatus || "").toLowerCase().trim();
+    if (!value) {
+      return "reading";
+    }
+
+    if (value === "currently reading") {
+      return "reading";
+    }
+
+    return value;
+  }
+
+  function getStatusPriority(status) {
+    var normalized = normalizeBookStatus(status);
+    if (normalized === "reading") {
+      return 0;
+    }
+    if (normalized === "up next" || normalized === "to read") {
+      return 1;
+    }
+    if (normalized === "completed" || normalized === "finished") {
+      return 2;
+    }
+    return 3;
+  }
+
+  function compareBooks(a, b) {
+    var statusDiff = getStatusPriority(a.status) - getStatusPriority(b.status);
+    if (statusDiff !== 0) {
+      return statusDiff;
+    }
+
+    var aTime = new Date(a.createdAt).getTime();
+    var bTime = new Date(b.createdAt).getTime();
+    return bTime - aTime;
+  }
+
+  function issueToBookEntries(issue) {
+    var body = issue.body || "";
+    var parsed = extractBookConfigs(body);
+    var labels = (issue.labels || []).map(function (item) {
+      return item.name;
+    });
+    var hasStructuredData = parsed.blocks.some(function (block) {
+      return hasBookFields(block.fields || {});
+    });
+
+    if (hasStructuredData) {
+      return parsed.blocks
+        .map(function (block, index) {
+          var fields = block.fields || {};
+          var amazonUrl = normalizeUrl(fields.amazon || fields.amazon_url || "") || extractAmazonLink(block.notes || "");
+          var title = fields.title || fields.book_title || "";
+
+          if (!title && !amazonUrl) {
+            return null;
+          }
+
+          return {
+            title: title || issue.title,
+            author: fields.author || "",
+            category: normalizeBookCategory(fields.category || "", labels),
+            status: normalizeBookStatus(fields.status || "reading"),
+            url: amazonUrl,
+            bookId: "b" + String(index + 1),
+            notesBody: block.notes || "",
+            issueNumber: issue.number,
+            createdAt: issue.created_at,
+            excerpt: toExcerpt(block.notes || parsed.bodyWithoutConfig || "", 180),
+            tags: getTags(issue.labels || [])
+          };
+        })
+        .filter(Boolean);
+    }
+
+    return extractBooksFromMarkdown(body).map(function (book, index) {
+      return {
+        title: book.title,
+        author: "",
+        category: normalizeBookCategory("", labels),
+        status: normalizeBookStatus("reading"),
+        url: book.url,
+        bookId: "b" + String(index + 1),
+        notesBody: body,
+        issueNumber: issue.number,
+        createdAt: issue.created_at,
+        excerpt: toExcerpt(body, 180),
+        tags: getTags(issue.labels || [])
+      };
+    });
+  }
+
   function stripMarkdown(text) {
     return text
       .replace(/```[\s\S]*?```/g, "")
@@ -257,41 +504,87 @@
       '" class="button" target="_blank" rel="noopener">View on Amazon</a></p>';
   }
 
+  function renderBookCard(book) {
+    var author = book.author ? '<p class="blog-meta">by ' + escapeHtml(book.author) + '</p>' : "";
+    var status = "";
+    var titleHtml = "";
+
+    if (book.url) {
+      titleHtml =
+        '<h2><a href="' +
+        escapeHtml(book.url) +
+        '" target="_blank" rel="noopener">' +
+        escapeHtml(book.title) +
+        "</a></h2>";
+    } else {
+      titleHtml = '<h2>' + escapeHtml(book.title) + "</h2>";
+    }
+
+    if (book.status) {
+      var normalizedStatus = normalizeBookStatus(book.status);
+      var label = normalizedStatus === "reading" ? "Currently Reading" : normalizedStatus;
+      status =
+        '<p class="book-status-row"><span class="book-status-badge">' +
+        escapeHtml(label) +
+        "</span></p>";
+    }
+
+    return (
+      '<article class="box blog-card book-card">' +
+      '<div class="book-card-body">' +
+      titleHtml +
+      author +
+      status +
+      '<p class="blog-meta">' +
+      formatDate(book.createdAt) +
+      '</p>' +
+      '<p><a href="?post=' +
+      book.issueNumber +
+      (book.bookId ? "&book=" + encodeURIComponent(book.bookId) : "") +
+      '">View notes</a></p>' +
+      renderTags(book.tags || []) +
+      '</div>' +
+      '</article>'
+    );
+  }
+
+  function renderBookSection(title, books) {
+    if (!books.length) {
+      return "";
+    }
+
+    return (
+      '<section class="books-section">' +
+      '<h2 class="major">' +
+      escapeHtml(title) +
+      '</h2>' +
+      '<div class="blog-list">' +
+      books.map(renderBookCard).join("") +
+      '</div>' +
+      '</section>'
+    );
+  }
+
   function renderList(issues) {
     var books = [];
     issues.forEach(function (issue) {
-      var issueBooks = extractBooksFromMarkdown(issue.body || "");
-      issueBooks.forEach(function (book) {
-        books.push({
-          title: book.title,
-          url: book.url,
-          issueNumber: issue.number,
-          createdAt: issue.created_at
-        });
-      });
+      books = books.concat(issueToBookEntries(issue));
     });
 
     if (books.length > 0) {
-      var bookCards = books
-        .map(function (book) {
-          return (
-            '<article class="box blog-card">' +
-            "<h2>" +
-            escapeHtml(book.title) +
-            "</h2>" +
-            '<p class="blog-meta">' +
-            formatDate(book.createdAt) +
-            "</p>" +
-            renderAmazonButton(book.url) +
-            '<p><a href="?post=' +
-            book.issueNumber +
-            '">View notes</a></p>' +
-            "</article>"
-          );
-        })
-        .join("");
+      var academicBooks = books.filter(function (book) {
+        return book.category === "academic";
+      });
+      var readingBooks = books.filter(function (book) {
+        return book.category !== "academic";
+      });
 
-      listContainer.innerHTML = bookCards;
+      academicBooks.sort(compareBooks);
+      readingBooks.sort(compareBooks);
+
+      listContainer.innerHTML =
+        renderBookSection("Academic Books", academicBooks) +
+        renderBookSection("Other Books I Am Reading", readingBooks);
       setVisibility(listContainer, true);
       setVisibility(postContainer, false);
       setVisibility(emptyState, false);
@@ -353,6 +646,18 @@
     });
   }
 
+  function stripBookConfigBlock(markdown) {
+    var parsed = extractBookConfigs(markdown || "");
+    var notesFromBlocks = parsed.blocks
+      .map(function (block) {
+        return block.notes || "";
+      })
+      .filter(Boolean)
+      .join("\n\n");
+
+    return [notesFromBlocks, parsed.bodyWithoutConfig || ""].filter(Boolean).join("\n\n").trim();
+  }
+
   function enhanceCodeBlocks(container) {
     if (!container || typeof window.hljs === "undefined") {
       return;
@@ -391,23 +696,31 @@
   function renderPost(issue) {
     var tags = getTags(issue.labels || []);
     var amazonUrl = extractAmazonLink(issue.body || "");
+    var selectedBookId = getQueryBookId();
+    var issueBooks = issueToBookEntries(issue);
+    var selectedBook = selectedBookId
+      ? issueBooks.find(function (book) {
+          return book.bookId === selectedBookId;
+        })
+      : issueBooks[0];
+    var markdownBody = selectedBook && selectedBook.notesBody
+      ? selectedBook.notesBody
+      : stripBookConfigBlock(issue.body || "");
+    var postTitle = selectedBook && selectedBook.title ? selectedBook.title : issue.title;
     var headerHtml =
       '<article class="box blog-card blog-post">' +
       "<h2>" +
-      escapeHtml(issue.title) +
+      escapeHtml(postTitle) +
       "</h2>" +
       '<p class="blog-meta">' +
       formatDate(issue.created_at) +
       "</p>";
     var footerHtml =
       renderAmazonButton(amazonUrl) +
-      '<p><a href="' +
-      issue.html_url +
-      '" target="_blank" rel="noopener">View source issue on GitHub</a></p>' +
       renderTags(tags) +
       "</article>";
 
-    renderMarkdown(issue.body || "")
+    renderMarkdown(markdownBody)
       .then(function (contentHtml) {
         postContainer.innerHTML =
           headerHtml +
@@ -421,7 +734,7 @@
         postContainer.innerHTML =
           headerHtml +
           '<div class="issue-markdown"><p>' +
-          escapeHtml(issue.body || "")
+          escapeHtml(markdownBody)
             .replace(/\n\n/g, "</p><p>")
             .replace(/\n/g, "<br />") +
           "</p></div>" +
@@ -500,14 +813,30 @@
     searchInput.addEventListener("input", applySearch);
   }
 
+  function updateBackLink(queryPost) {
+    if (!booksBackLink) {
+      return;
+    }
+
+    if (queryPost) {
+      booksBackLink.textContent = "Back to Books";
+      booksBackLink.setAttribute("href", "/books/");
+    } else {
+      booksBackLink.textContent = "Back to Portfolio";
+      booksBackLink.setAttribute("href", "/");
+    }
+  }
+
   function fetchIssues() {
     return fetch(issuesApi, {
       headers: {
-        Accept: "application/vnd.github+json"
+        Accept: "application/vnd.github.full+json"
       }
     }).then(function (response) {
       if (!response.ok) {
-        throw new Error("Failed to fetch issues");
+        var error = new Error("Failed to fetch issues");
+        error.status = response.status;
+        throw error;
       }
       return response.json();
     });
@@ -518,7 +847,9 @@
     bindSearch();
 
     var queryPost = getQueryPostNumber();
+    updateBackLink(queryPost);
     var cached = getCache();
+    var anyCached = getAnyCache();
     if (cached) {
       var cachedIssues = normalizeIssues(cached);
       if (cachedIssues.length > 0) {
@@ -566,7 +897,26 @@
         applySearch();
       })
       .catch(function () {
-        if (!cached) {
+        if (!cached && anyCached) {
+          var fallbackIssues = normalizeIssues(anyCached);
+          allIssues = fallbackIssues;
+
+          if (queryPost) {
+            var fallbackPost = fallbackIssues.find(function (item) {
+              return item.number === queryPost;
+            });
+            if (fallbackPost) {
+              renderPost(fallbackPost);
+              return;
+            }
+          } else {
+            renderList(fallbackIssues);
+            applySearch();
+            return;
+          }
+        }
+
+        if (!cached && !anyCached) {
           renderError();
         }
       })

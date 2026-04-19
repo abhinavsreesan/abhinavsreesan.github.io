@@ -88,6 +88,22 @@
     }
   }
 
+  function getAnyCache() {
+    try {
+      var raw = localStorage.getItem(cacheKey);
+      if (!raw) {
+        return null;
+      }
+      var parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed.data)) {
+        return null;
+      }
+      return parsed.data;
+    } catch (error) {
+      return null;
+    }
+  }
+
   function setCache(data) {
     try {
       localStorage.setItem(
@@ -266,7 +282,11 @@
       renderTags(tags) +
       "</article>";
 
-    renderMarkdown(issue.body || "")
+    var renderPromise = issue.body_html
+      ? Promise.resolve(issue.body_html)
+      : renderMarkdown(issue.body || "");
+
+    renderPromise
       .then(function (contentHtml) {
         postContainer.innerHTML =
           headerHtml +
@@ -364,11 +384,13 @@
   function fetchIssues() {
     return fetch(issuesApi, {
       headers: {
-        Accept: "application/vnd.github+json"
+        Accept: "application/vnd.github.full+json"
       }
     }).then(function (response) {
       if (!response.ok) {
-        throw new Error("Failed to fetch issues");
+        var error = new Error("Failed to fetch issues");
+        error.status = response.status;
+        throw error;
       }
       return response.json();
     });
@@ -380,6 +402,7 @@
 
     var queryPost = getQueryPostNumber();
     var cached = getCache();
+    var anyCached = getAnyCache();
     if (cached) {
       var cachedIssues = normalizeIssues(cached);
       if (cachedIssues.length > 0) {
@@ -427,7 +450,26 @@
         applySearch();
       })
       .catch(function () {
-        if (!cached) {
+        if (!cached && anyCached) {
+          var fallbackIssues = normalizeIssues(anyCached);
+          allIssues = fallbackIssues;
+
+          if (queryPost) {
+            var fallbackPost = fallbackIssues.find(function (item) {
+              return item.number === queryPost;
+            });
+            if (fallbackPost) {
+              renderPost(fallbackPost);
+              return;
+            }
+          } else {
+            renderList(fallbackIssues);
+            applySearch();
+            return;
+          }
+        }
+
+        if (!cached && !anyCached) {
           renderError();
         }
       })

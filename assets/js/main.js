@@ -337,15 +337,24 @@
 
 			});
 
-			$window.on('hashchange', function(event) {
+		$window.on('hashchange', function(event) {
 
-				// Empty hash?
-					if (location.hash == ''
-					||	location.hash == '#') {
+			// Empty hash?
+				if (location.hash == ''
+				||	location.hash == '#') {
 
-						// Prevent default.
-							event.preventDefault();
-							event.stopPropagation();
+					var $activeArticle = $main_articles.filter('.active'),
+						activeId = $activeArticle.attr('id') || '';
+
+					// If we're closing a project detail article, route back to Projects.
+						if (activeId.indexOf('project-') === 0) {
+							location.hash = '#work';
+							return;
+						}
+
+					// Prevent default.
+						event.preventDefault();
+						event.stopPropagation();
 
 						// Hide.
 							$main._hide();

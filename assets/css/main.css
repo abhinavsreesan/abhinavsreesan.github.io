@@ -1800,6 +1800,12 @@ h1, h2, h3 {
 	border-color: var(--color-border);
 }
 
+#header.hero .content .inner {
+	max-height: none;
+	overflow: visible;
+	padding-bottom: 2.25rem;
+}
+
 #header.hero .content p {
 	text-transform: none;
 	letter-spacing: 0.08rem;
@@ -1824,6 +1830,35 @@ h1, h2, h3 {
 	font-size: 1rem;
 	line-height: 1.8;
 	color: var(--color-muted);
+}
+
+.hero-recent-impact {
+	margin-top: 1.5rem;
+	margin-bottom: 0.5rem;
+	padding: 1rem 1.25rem;
+	border: solid 1px var(--color-border);
+	border-radius: 0.75rem;
+	background: rgba(255, 255, 255, 0.03);
+}
+
+.hero-recent-impact h2 {
+	margin: 0 0 0.8rem 0;
+	font-size: 0.82rem;
+	letter-spacing: 0.2rem;
+	text-transform: uppercase;
+}
+
+.hero-recent-impact ul {
+	margin: 0 0 0 1.25rem;
+}
+
+.hero-recent-impact li {
+	max-width: none;
+	margin-bottom: 0.6rem;
+}
+
+.hero-recent-impact li:last-child {
+	margin-bottom: 0;
 }
 
 .hero-panel {
@@ -2071,6 +2106,22 @@ h1, h2, h3 {
 	border-bottom: 0;
 }
 
+#contact .actions {
+	margin-left: 0;
+	gap: 0.75rem;
+	flex-wrap: wrap;
+}
+
+#contact .actions li {
+	padding-left: 0;
+	flex: 1 1 15rem;
+}
+
+#contact .actions li .button {
+	width: 100%;
+	min-width: 0;
+}
+
 .timeline-meta {
 	margin-bottom: 1rem;
 	font-size: 0.72rem;
@@ -2081,9 +2132,31 @@ h1, h2, h3 {
 
 /* Readability */
 
-#main article p,
-#main article li {
+#main article > p,
+#main article > ul,
+#main article > ol,
+#main article > .content-full-width p,
+#main article > .content-full-width li {
+	max-width: none;
+}
+
+.overview-card p,
+.overview-card li,
+.timeline-card p,
+.timeline-card li,
+.project-card p,
+.project-card li,
+.hero-recent-impact p,
+.hero-recent-impact li {
 	max-width: 74ch;
+}
+
+#main article[id^="project-"] h2.major {
+	width: 100%;
+	max-width: 100%;
+	white-space: normal;
+	overflow-wrap: anywhere;
+	word-break: break-word;
 }
 
 /* Header nav density for seven items */
@@ -2138,8 +2211,51 @@ body.blog-page {
 
 .blog-list {
 	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
 	gap: 1.25rem;
+}
+
+.books-section .blog-list {
+	grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+}
+
+.books-section {
+	margin-bottom: 2rem;
+}
+
+.books-section .major {
+	margin-bottom: 1rem;
+}
+
+.book-card {
+	display: block;
+	padding: 1.2rem 1rem;
+}
+
+.book-card-body .blog-meta {
+	margin-bottom: 0.5rem;
+}
+
+.book-card-body h2 {
+	margin-bottom: 0.55rem;
+	font-size: 0.98rem;
+	line-height: 1.35;
+}
+
+.book-status-row {
+	margin: 0 0 0.55rem 0;
+}
+
+.book-status-badge {
+	display: inline-block;
+	padding: 0.2rem 0.55rem;
+	border-radius: 999px;
+	border: 1px solid rgba(56, 189, 248, 0.55);
+	background: rgba(56, 189, 248, 0.12);
+	font-size: 0.62rem;
+	letter-spacing: 0.08rem;
+	text-transform: uppercase;
+	color: var(--color-accent);
 }
 
 .blog-card {
@@ -2292,6 +2408,44 @@ body.blog-page {
 }
 
 @media screen and (max-width: 736px) {
+	#main article[id^="project-"] h2.major {
+		font-size: 1.35rem;
+		letter-spacing: 0.12rem;
+		line-height: 1.35;
+	}
+
+	#contact .actions {
+		flex-direction: column;
+		width: 100%;
+		gap: 0;
+	}
+
+	#contact .actions li {
+		flex: 0 0 auto;
+		width: 100%;
+		padding-top: 0.85rem;
+	}
+
+	#contact .actions li:first-child {
+		padding-top: 0;
+	}
+
+	#header.hero .content .inner {
+		padding-bottom: 2.5rem;
+	}
+
+	#header.hero .hero-recent-impact {
+		margin-bottom: 0.75rem;
+	}
+
+	#header.hero nav {
+		margin-top: 0.75rem;
+	}
+
+	#header.hero > *:before {
+		display: none;
+	}
+
 	#header.hero nav {
 		width: 100%;
 	}
@@ -2337,6 +2491,18 @@ body.blog-page {
 }
 
 @media screen and (max-width: 420px) {
+	#header.hero .content .inner {
+		padding-bottom: 2.75rem;
+	}
+
+	#header.hero .hero-recent-impact {
+		margin-bottom: 0.85rem;
+	}
+
+	#header.hero nav {
+		margin-top: 0.85rem;
+	}
+
 	#header.hero nav ul {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 		gap: 0.45rem;
