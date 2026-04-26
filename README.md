@@ -28,7 +28,7 @@ A personal portfolio website for GitHub Pages showcasing experience, projects, s
 - `_layouts/` - Blog and post layouts for Jekyll.
 - `assets/resume/Abhinav's Resume Rev2.pdf` - Resume PDF.
 - `assets/resume/Abhinav's Resume Rev2.md` - Resume markdown source used for content updates.
-- `images/profile.jpg` - Profile image used in the header.
+- `images/profile.png` - Profile image used in the header.
 - `CNAME` - Custom domain configuration (optional).
 
 ## Local Development
@@ -100,7 +100,7 @@ Replace the PDF at:
 ### Profile Image
 Replace the image at:
 
-- `images/profile.jpg`
+- `images/profile.png`
 
 ### Projects
 Edit summary cards and detailed project sections in `index.html`:
