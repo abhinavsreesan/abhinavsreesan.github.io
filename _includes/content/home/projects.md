@@ -3,7 +3,7 @@ Project highlights from client platforms and internal accelerators aligned to pr
 [[[PROJECT]]]
 Transaction Intelligence & Consumer Analytics Feed
 [[[FIELD]]]
-Architected an LLM-powered Databricks platform to transform raw credit and debit card data into high-fidelity vendor panels for market health and spend analytics.
+Architected an LLM-powered Databricks data platform to transform raw credit and debit card data into high-fidelity vendor panels for market health and spend analytics.
 [[[FIELD]]]
 - **Sector:** Alternative Data / Market Research
 - **Outcome:** Daily production feed delivering granular vendor-level growth and health insights.
@@ -28,7 +28,7 @@ Engineered a high-scale data intelligence engine that leverages Large Language M
 [[[PROJECT]]]
 Command and Control Data Platform
 [[[FIELD]]]
-Architected an Azure Synapse and Databricks ecosystem to unify SAP CDC, API, and SFTP data into a high-concurrency analytics layer.
+Architected an Azure Synapse and Databricks data platform to unify SAP CDC, API, and SFTP data into a high-concurrency analytics layer.
 [[[FIELD]]]
 - **Client:** Leading Indian cement manufacturer
 - **Outcome:** 40+ KPI drilldowns across 30+ manufacturing plants
@@ -54,7 +54,7 @@ Delivered a centralized "Command and Control" platform that provided stakeholder
 [[[PROJECT]]]
 Metadata and Data Quality Framework
 [[[FIELD]]]
-Designed an extensible governance and observability layer to ensure the integrity, security, and reliability of enterprise data assets.
+Designed an extensible data governance and observability layer to ensure the integrity, security, and reliability of enterprise data assets.
 [[[FIELD]]]
 - **Security:** Custom granular row-level security for role-based access
 - **Delivery:** Standardized CI/CD for serverless and warehousing components
@@ -77,7 +77,7 @@ Built a reusable framework-first operating model that transformed raw infrastruc
 [[[PROJECT]]]
 In-House Data Platform Accelerator
 [[[FIELD]]]
-Engineered a "Platform-as-a-Service" accelerator to automate the deployment of standardized, production-ready Azure data environments.
+Engineered a "Platform-as-a-Service" accelerator to automate the deployment of standardized, production-ready multi-cloud data platform environments.
 [[[FIELD]]]
 - **Impact:** 60% reduction in platform configuration and setup time
 - **Innovation:** Evaluated Delta-based metadata catalogs for compute-storage decoupling

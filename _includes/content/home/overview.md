@@ -1,4 +1,4 @@
-Senior Data Engineer based in Mumbai with hands-on experience designing, building, and operating enterprise data platforms.
+Senior Data Engineer based in Mumbai with hands-on experience designing, building, and operating enterprise multi-cloud data platforms and analytics infrastructure.
 
 [[[SECTION]]]
 
@@ -39,9 +39,9 @@ Senior Data Engineer based in Mumbai with hands-on experience designing, buildin
 
 [[[SECTION]]]
 
-- **Enterprise Data Infrastructure** Implementing high-performance architectures utilizing modern cloud storage, distributed compute (Spark/Databricks), and unified analytics platforms to handle complex, large-scale data requirements.
+- **Enterprise Data Infrastructure** Implementing high-performance architectures utilizing modern cloud storage, distributed compute (Spark/Databricks), and unified analytics platforms to handle complex, large-scale data requirements across multi-cloud ecosystems.
 
-- **End-to-End Pipeline Lifecycle** Building sophisticated ETL/ELT workflows with integrated observability and escalation logic to ensure high data quality and maintain strict enterprise SLAs.
+- **End-to-End Pipeline Lifecycle** Building sophisticated ETL/ELT workflows with integrated observability and escalation logic to ensure high data quality and maintain strict enterprise SLAs for data pipelines.
 
 - **Framework-First Engineering** Developing automated deployment workflows and metadata-led ingestion engines that incorporate granular row-level security and scalable access controls.
 

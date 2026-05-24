@@ -1,15 +1,15 @@
-Recent roles and delivery ownership across platform architecture, ingestion frameworks, governance, and production operations.
+Recent roles and delivery ownership across multi-cloud data platform architecture, ingestion frameworks, governance, and production operations.
 
 [[[SECTION]]]
 
 - **Stakeholder Partnership:** Partnering with cross-functional Investor and Corporate teams to engineer high-fidelity data products that drive institutional decision-making.
-- **Production-Grade Engineering:** Developing enterprise-grade ingestion architectures and analytics-ready datasets for high-concurrency internal and external consumption.
+- **Production-Grade Engineering:** Developing enterprise-grade ingestion architectures and analytics-ready datasets for high-concurrency internal and external consumption across data platforms.
 - **Operational Excellence:** Enhancing platform resilience through automated observability, standardized data quality frameworks, and proactive operational runbooks.
 - **Velocity Optimization:** Optimizing transformation design patterns and collaborative workflows, resulting in measurable improvements to engineering delivery velocity.
 
 [[[SECTION]]]
 
-- **Multi-Source Architecture:** Architected scalable data platforms using Azure Synapse and Databricks, orchestrating complex integrations across SAP CDC, APIs, and legacy SFTP systems.
+- **Multi-Source Architecture:** Architected scalable data platforms using Azure Synapse and Databricks, orchestrating complex integrations across SAP CDC, APIs, and legacy SFTP systems for enterprise data pipelines.
 - **Technical Leadership:** Led an agile squad of four engineers to rapidly prototype and deliver a 40+ KPI pilot within the first month of engagement.
 - **Framework-Driven Design:** Engineered an extensible, metadata-driven framework utilizing Cosmos DB and Azure Functions for dynamic scheduling, logging, and configuration management.
 - **Governance & CI/CD:** Standardized data governance and automated CI/CD workflows via Azure DevOps, ensuring consistent delivery quality and high environment stability.
